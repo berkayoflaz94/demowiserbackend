@@ -6,6 +6,7 @@ async function createCuration(req, res) {
     try {
         console.log('create',req.body)
         const newCuration = await curationService.createCuration(req.body);
+        console.log(req.body.posts);
         //console.log
         res.status(201).json(newCuration);  // Başarılıysa 201 status koduyla yeni curation'ı döndür
     } catch (error) {

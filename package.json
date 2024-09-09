@@ -20,6 +20,7 @@
     "express-async-handler": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.6.0",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.15",
     "openai": "^4.57.3",
     "yargs": "^17.7.2"

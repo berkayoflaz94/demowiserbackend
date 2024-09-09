@@ -21,6 +21,18 @@ const postSchema = new mongoose.Schema({
     chosen: {
         type:Boolean,
         required: false,
+    },
+    image :{
+        type:String,
+        required: false,
+    },
+    description :{
+        type:String,
+        required: false,
+    },
+    title :{
+        type:String,
+        required: false,
     }
 });
 

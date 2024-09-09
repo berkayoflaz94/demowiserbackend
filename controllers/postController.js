@@ -3,6 +3,8 @@ const asyncHandler = require('express-async-handler');
 const { getRecommend } = require('../services/recommendService');
 const { search } = require('../services/searchService');
 const {sendMail} = require('../services/mailService');
+const personService = require('../services/personService')
+const curationService = require('../services/curationService')
 // Başlık oluşturma
 const getRecommendation = asyncHandler(async (req, res) => {
     if(!req.query.titleId){
@@ -121,7 +123,26 @@ const getSearch = asyncHandler(async (req, res) => {
     res.status(200).send(data);
 });
 const send_mail = asyncHandler(async(req,res) => {
-    console.log('asd send_mail')
+    const {personId,curationId} = req.body;
+    let getPerson
+    let getCuration
+    if(req.body.personId){
+        getPerson = await personService.getPersonByIdService(personId)
+    }else{
+        return res.status(400).json({
+            success: false,
+            message: 'PersonId is required.',
+        }); 
+    }
+    if(req.body.curationId){
+        getCuration = await curationService.getCurationById(curationId)
+    }else{
+        return res.status(400).json({
+            success: false,
+            message: 'CurationId is required.',
+        }); 
+    }
+    console.log(getCuration)
     return res.status(200).json({
         success: true,
         message: 'Operation succeed.',
