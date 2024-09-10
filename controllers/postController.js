@@ -1302,7 +1302,7 @@ img,p{margin:0;Margin:0;font-family:Helvetica,BlinkMacSystemFont,Segoe UI,Helvet
 </body>
 
 </html>`;
-    await sendMail(getPerson.data.company.email, 'Recommendations from your AI Learning Assistant', mailTemplate);
+    await sendMail(getPerson.data.email, 'Recommendations from your AI Learning Assistant', mailTemplate);
     return res.status(200).json({
         success: true,
         message: 'Operation succeed.',
