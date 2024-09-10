@@ -84,14 +84,10 @@ async function getRecommend(queryParam) {
 
         // Eğer lang varsa, tr veya en'ye göre section ayarla
         if (queryParam.lang) {
-            if (queryParam.lang === 'tr') {
-                filter.section = { $eq: "İş Dünyası" };  // Türkçe için "İş Dünyası"
-            } else {
                 filter.section = { $eq: "Business" };   // İngilizce için "Business"
-            }
         } else {
             // Eğer lang yoksa hem "Business" hem "İş Dünyası" olarak ayarla
-            filter.section = { $in: ["Business", "İş Dünyası"] };
+            filter.section = { $in: ["Business"] };
         }
        
         const queries = person && person.keywords.length > 0 ? person.keywords : [queryParam.searchText];
@@ -135,10 +131,10 @@ async function getRecommend(queryParam) {
                     url: post.metadata?.url,
                     title: post.metadata?.title,
                     explanation: "Yapay zekayı HR teknolojilerine entegre ederek daha yenilikçi çözümler geliştirebilirsin.",
-                    benefit: ""
+                    benefit: "High"
                 }))
         };
-        const promptContent = `Aşağıdaki postlar kullanılarak, '${title.data.name}' ünvanına sahip bir şirket çalışanı için en uygun ve faydalı 15 postu seçin. Seçiminizi yaparken ${queries.join(',')} konularında yüksek bilgi ve strateji sunan tercih edin. Her postun mesleki bağlamda önerilen kişiye neden faydalı olduğunu tek cümleyle açıklayın. Her post için açıklamanın metni '${queryParam.lang == 'tr' ? 'türkçe' : 'ingilizce'}' olsun. Aynı internet sitesinden en fazla 2 post seçin. JSON formatında, objenin adı "posts" olacak şekilde sadece URL, explanation ve fayda düzeyini (Yüksek, Orta, Düşük) içeren bir yanıt verin. Postlar: ${JSON.stringify(postsForChatGPT)}`
+        const promptContent = `Aşağıdaki postlar kullanılarak, '${title.data.name}' ünvanına sahip bir şirket çalışanı için en uygun ve faydalı 15 postu seçin. Seçiminizi yaparken ${queries.join(',')} konularında yüksek bilgi ve strateji sunan tercih edin. Her postun mesleki bağlamda önerilen kişiye neden faydalı olduğunu tek cümleyle açıklayın. Her post için açıklama metni '${queryParam.lang == 'tr' ? 'türkçe' : 'ingilizce'}' olsun.Her post açıklaması bir diğerinden farklı olsun. Aynı internet sitesinden en fazla 2 post seçin. JSON formatında, objenin adı "posts" olacak şekilde sadece URL, explanation ve fayda düzeyini (Yüksek, Orta, Düşük) içeren bir yanıt verin. Postlar: ${JSON.stringify(postsForChatGPT)}`
         console.log(promptContent,'promptContent')
         const completion = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
@@ -152,8 +148,8 @@ async function getRecommend(queryParam) {
                     content: promptContent
                 }
             ],
-            max_tokens: 1200,
-            temperature: 0.2,
+            max_tokens: 1800,
+            temperature: 0.7,
         });
         const response = completion.choices[0].message?.content;
         if (response) {
