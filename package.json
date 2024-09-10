@@ -23,6 +23,7 @@
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.15",
     "openai": "^4.57.3",
+    "text-ellipsis": "^1.0.3",
     "yargs": "^17.7.2"
   }
 }

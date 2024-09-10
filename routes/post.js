@@ -6,6 +6,6 @@ const router = express.Router();
 // Başlık oluşturma
 router.get('/recommendation', getRecommendation);
 router.get('/search', getSearch);
-router.post('/sendmail', send_mail);
+router.post('/sendMail', send_mail);
 
 module.exports = router;

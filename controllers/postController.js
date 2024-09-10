@@ -5,6 +5,7 @@ const { search } = require('../services/searchService');
 const {sendMail} = require('../services/mailService');
 const personService = require('../services/personService')
 const curationService = require('../services/curationService')
+var ellipsis = require('text-ellipsis');
 // Başlık oluşturma
 const getRecommendation = asyncHandler(async (req, res) => {
     if(!req.query.titleId){
@@ -126,6 +127,8 @@ const send_mail = asyncHandler(async(req,res) => {
     const {personId,curationId} = req.body;
     let getPerson
     let getCuration
+    let mailPosts;
+    let elementId = 0
     if(req.body.personId){
         getPerson = await personService.getPersonByIdService(personId)
     }else{
@@ -142,14 +145,12 @@ const send_mail = asyncHandler(async(req,res) => {
             message: 'CurationId is required.',
         }); 
     }
-    console.log(getCuration)
-    return res.status(200).json({
-        success: true,
-        message: 'Operation succeed.',
+    const bugun = new Date().toLocaleDateString('tr-TR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
       });
-})
-const mail = asyncHandler(async(req,res) => {
-    getPosts.forEach(item => {
+    getCuration.posts.forEach(item => {
         mailPosts += ` <div class="for-you-post">
                           <tr>
                             <td>
@@ -223,7 +224,7 @@ const mail = asyncHandler(async(req,res) => {
                                                           style="overflow:hidden;background-color:#F3F4F6;padding:10px 15px 10px 15px;border-radius:12px 12px 12px 12px;">
                                                           <a class="post-link" target="_blank" href="${item.url}"><h1 class="t30 share-your-thoughts"
                                                             style="margin:0;Margin:0;font-family:Helvetica,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:20px;font-weight:500;font-style:normal;font-size:15px;text-decoration:none;text-transform:none;letter-spacing:0.5px;direction:ltr;color:#3F3F46;text-align:left;mso-line-height-rule:exactly;mso-text-raise:2px;line-height:normal;">
-                                                            ${item.note ? item.note : getPersonalNote(55,elementId)}</h1></a>
+                                                            ${item.explanation}</h1></a>
                                                         </td>
                                                       </tr>
                                                     </table>
@@ -989,7 +990,7 @@ img,p{margin:0;Margin:0;font-family:Helvetica,BlinkMacSystemFont,Segoe UI,Helvet
                 <!--[if mso]><td class="t12" style="width:500;padding:0 0 20px 0;"><![endif]-->
                 <h1 class="t11" style="margin:0;Margin:0;/* border-bottom:1px solid #E2E2E2; */padding: 0 0 25px 0;font-family:Helvetica,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:28px;font-weight:800;font-style:normal;font-size:17px;text-decoration:none;text-transform:none;letter-spacing:0px;direction:ltr;color: #FFF;text-align:center;mso-line-height-rule:exactly;mso-text-raise:1px;">
                   <span class="t9" style="margin:0;Margin:0;font-weight:400;mso-line-height-rule:exactly;font-size:17px;">Bu bülten </span><span class="t10" style="margin:0;Margin:0;font-weight:700;mso-line-height-rule:exactly;letter-spacing:0px;">Wiser
-                    ve Havelsan Akademi</span>
+                    ve ${getPerson.data.company.name}</span>
                     <span class="t9" style="margin:0;Margin:0;font-weight:400;mso-line-height-rule:exactly;font-size:17px;"> iş birliğiyle hazırlandı.</span>
                 </h1>
               </td>
@@ -1029,7 +1030,7 @@ img,p{margin:0;Margin:0;font-family:Helvetica,BlinkMacSystemFont,Segoe UI,Helvet
                                   <!--[if mso]><td class="t16" style="width:500;padding:0 0 20px 0;"><![endif]-->
                                   <h1 class="t15 today-text"
                                     style="margin:0;Margin:0;font-family:Helvetica,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,sans-serif;line-height:28px;font-weight:700;font-style:normal;font-size:22px!important;text-decoration:none;text-transform:none;letter-spacing:0px;direction:ltr;color:#191919;text-align:center;mso-line-height-rule:exactly;mso-text-raise:1px;">
-                                    Merhaba Arif, Bugün 2 Eylül 2024.</h1>
+                                    Merhaba ${getPerson.data.name}, Bugün ${bugun}.</h1>
                                 </td>
                               </tr>
                             </table>
@@ -1301,7 +1302,14 @@ img,p{margin:0;Margin:0;font-family:Helvetica,BlinkMacSystemFont,Segoe UI,Helvet
 </body>
 
 </html>`;
-    await sendMail('arbeyturan@hotmail.com', 'Recommendations from your AI Learning Assistant', mailTemplate);
+//await sendMail('berkayoflaz@gmail.com', 'Recommendations from your AI Learning Assistant', mailTemplate);
+    return res.status(200).json({
+        success: true,
+        message: 'Operation succeed.',
+      });
+})
+const mail = asyncHandler(async(req,res) => {
+    
     
     //await sendMail('berkayoflaz@gmail.com', 'For You - Project Manager TR', mailTemplate);
       return res.status(200).json({

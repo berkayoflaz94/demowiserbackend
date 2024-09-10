@@ -60,7 +60,7 @@ async function getRecommend(queryParam) {
         if(getPerson.data.keywords){
             person = getPerson.data;
         }
-        
+        console.log(person,'person')
         const description = await pinecone.describeIndex(indexName);
         if (!description.status?.ready) {
             throw new Error(`Index not ready, description was ${JSON.stringify(description)}`);
@@ -93,6 +93,7 @@ async function getRecommend(queryParam) {
             // Eğer lang yoksa hem "Business" hem "İş Dünyası" olarak ayarla
             filter.section = { $in: ["Business", "İş Dünyası"] };
         }
+       
         const queries = person && person.keywords.length > 0 ? person.keywords : [queryParam.searchText];
 
         const embeddings = await Promise.all(queries.map(query => embedder.embed(query)));
@@ -137,7 +138,7 @@ async function getRecommend(queryParam) {
                     benefit: ""
                 }))
         };
-        const promptContent = `Aşağıdaki postlar kullanılarak, '${title.data.name}' ünvanına sahip bir şirket çalışanı için en uygun ve faydalı 15 postu seçin. Seçiminizi yaparken ${queries.join(',')} konularında yüksek bilgi ve strateji sunan tercih edin. Her postun mesleki bağlamda önerilen kişiye neden faydalı olduğunu tek cümleyle açıklayın her post için yazılan cümle farklı olsun açıklamanın metni '${queryParam.lang == 'tr' ? 'türkçe' : 'ingilizce'}' olsun. JSON formatında objenin adı posts olacak şekilde sadece URL, explanation ve fayda düzeyini (Yüksek, Orta, Düşük) içeren bir yanıt verin. Postlar: ${JSON.stringify(postsForChatGPT)}`
+        const promptContent = `Aşağıdaki postlar kullanılarak, '${title.data.name}' ünvanına sahip bir şirket çalışanı için en uygun ve faydalı 15 postu seçin. Seçiminizi yaparken ${queries.join(',')} konularında yüksek bilgi ve strateji sunan tercih edin. Her postun mesleki bağlamda önerilen kişiye neden faydalı olduğunu tek cümleyle açıklayın. Her post için açıklamanın metni '${queryParam.lang == 'tr' ? 'türkçe' : 'ingilizce'}' olsun. Aynı internet sitesinden en fazla 2 post seçin. JSON formatında, objenin adı "posts" olacak şekilde sadece URL, explanation ve fayda düzeyini (Yüksek, Orta, Düşük) içeren bir yanıt verin. Postlar: ${JSON.stringify(postsForChatGPT)}`
         console.log(promptContent,'promptContent')
         const completion = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
@@ -151,8 +152,8 @@ async function getRecommend(queryParam) {
                     content: promptContent
                 }
             ],
-            max_tokens: 1800,
-            temperature: 0.7,
+            max_tokens: 1200,
+            temperature: 0.2,
         });
         const response = completion.choices[0].message?.content;
         if (response) {
